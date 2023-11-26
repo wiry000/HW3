@@ -1,30 +1,23 @@
 <?php
 require('clientModel.php');
-
 $act=$_REQUEST['act'];
-switch ($act)
-{
-case "listJob":
-  $jobs=getJobList();
-  echo json_encode($jobs);
+switch ($act){
+case "listItem":
+  $items=getItemList();
+  echo json_encode($items);
   return;
-
-case "addJob":
-	
+case "addItem":
 	$jsonStr = $_POST['dat'];
-	$job = json_decode($jsonStr);
-	//should verify first
-	addJob($job->name,$job->price,$job->content,$job->number);
+	$item = json_decode($jsonStr);
+	addItem($item->name,$item->price,$item->content,$item->number);
 	return;
-case "delJob":
-	$id=(int)$_REQUEST['id']; //$_GET, $_REQUEST
-	//verify
-	delJob($id);
+case "delItem":
+	$id=(int)$_REQUEST['id'];
+	delItem($id);
 	return;
-
-case "listshopping":
-	$jobs=getJobList1();
-	echo json_encode($jobs);
+case "listItem1":
+	$items=getItemList1();
+	echo json_encode($items);
 	return;
 default:
 }

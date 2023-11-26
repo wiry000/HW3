@@ -1,29 +1,26 @@
 <?php
 require('merchantModel.php');
-
 $act=$_REQUEST['act'];
 switch ($act) {
-case "listJob":
-  $jobs=getJobList();
-  echo json_encode($jobs);
+case "listItem":
+  $items=getItemList();
+  echo json_encode($items);
   return;  
-case "addJob":
+case "addItem":
 	$jsonStr = $_POST['dat'];
-	$job = json_decode($jsonStr);
-	addJob($job->name,$job->price,$job->content);
+	$item = json_decode($jsonStr);
+	addItem($item->name,$item->price,$item->content);
 	return;
-case "updateJob":
+case "updateItem":
 	$id=(int)$_REQUEST['id'];
 	$jsonStr = $_POST['dat'];
-	$job = json_decode($jsonStr);
-	updateJob($id,$job->name,$job->price,$job->content);
+	$item = json_decode($jsonStr);
+	updateItem($id,$item->name,$item->price,$item->content);
 	return;
-case "delJob":
+case "delItem":
 	$id=(int)$_REQUEST['id'];
-	delJob($id);
+	delItem($id);
 	return;
 default:
-  
 }
-
 ?>
