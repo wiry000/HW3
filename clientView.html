@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <script type="text/javascript" src="https://unpkg.com/vue@next"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 20px;
+        }
+
+        #main {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        button {
+            padding: 8px;
+            margin: 5px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        input {
+            padding: 8px;
+            margin: 5px;
+        }
+
+        #editForm2 {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="main">
+    <div id="list" v-if="UI=='main'">
+        <h1>商品清單</h1>
+        <table border=1>
+            <tr>
+                <th>序號</th>
+                <th>商品名稱</th>
+                <th>單價</th>
+                <th>商品說明</th>
+                <th>-</th>
+            </tr>
+            <tr v-for="job in dat">
+                <td>{{job.id}}</td>
+                <td>{{job.name}}</td>
+                <td>{{job.price}}</td>
+                <td>{{job.content}}</td>
+                <td><button @click="setQanUI(job)">加入購物車</button></td>
+            </tr>
+        </table>
+        <button @click="setUI1('editForm')">查看購物車</button>
+    </div>
+
+    <div v-if="UI=='editForm'">
+        <h1>我的購物車</h1>
+        <button @click="setUI('main')">返回商品清單</button>
+        <table border=1>
+            <tr>
+                <th>序號</th>
+                <th>商品名稱</th>
+                <th>單價</th>
+                <th>商品說明</th>
+                <th>數量</th>
+                <th>總價</th>
+                <th>-</th>
+            </tr>
+            <tr v-for="job in dat">
+                <td>{{job.id}}</td>
+                <td>{{job.name}}</td>
+                <td>{{job.price}}</td>
+                <td>{{job.content}}</td>
+                <td>{{job.number}}</td>
+                <td>{{job.total}}</td>
+                <td><button @click="delJob(job.id)">刪</button></td>
+            </tr>
+        </table>
+    </div>
+
+    <div v-if="UI=='editForm2'" id="editForm2">
+        <h1>商品資訊</h1>
+        <p>商品名稱: {{newJob.name}}</p>
+        <p>單價: {{newJob.price}}</p>
+        <p>商品說明: {{newJob.content}}</p>
+        <p>數量: <input type="text" v-model="newJob.number"></p>
+        <button @click="addJob(job)">加入購物車</button>
+    </div>
+</div>
+
+<script>
+    // Your Vue.js code remains the same
+</script>
+</body>
+</html>
