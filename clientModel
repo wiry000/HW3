@@ -54,7 +54,7 @@ global $db;
         mysqli_stmt_bind_param($stmt, "iis", $newNumber, $total, $name);
         mysqli_stmt_execute($stmt);
         return true;}
-    return false;}
+}
 
 function delItem($id)
 {
