@@ -7,36 +7,30 @@
 <hr />
 <div id="main">
 <div id="list" v-if="UI=='main'">
-	<h1>This is the main page.</h1>
-	<button @click="setAddUI()">Load Add Form</button>
+<h1>商品的列表</h1>
+	<button @click="setAddUI()">新增商品</button>
 	<table border=1>
-		<tr><td>序號</td><td>商品名稱</td><td>單價</td><td>商品說明</td><td>-</td></tr>
-		<tr v-for="job in dat">
-			<td>{{job.id}}</td>
-			<td>{{job.name}}</td>
-			<td>{{job.price}}</td>
-			<td>{{job.content}}</td>
-			<td><button @click="delJob(job.id)">刪</button><button @click="setEditUI(job)">改</button></td>
+		<tr><td>流水號</td><td>商品名字</td><td>價格</td><td>說明</td><td>-</td></tr>
+		<tr v-for="item in dat">
+			<td>{{item.id}}</td>
+			<td>{{item.name}}</td>
+			<td>{{item.price}}</td>
+			<td>{{item.content}}</td>
+			<td><button @click="delItem(item.id)">刪除商品</button><button @click="setEditUI(item)">修改商品</button></td>
 		</tr>
 	</table>
 </div>
 <div v-if="UI=='editForm'">
-	商品名稱: <input type="text"  v-model="newJob.name"/> <br/>
-
-	單價: <input type="text" v-model="newJob.price"> <br>
-
-	商品說明: <textarea v-model="newJob.content"></textarea><br>
-
-	<input type='button' @click="addJob()" value="save">
+	名字: <input type="text" v-model="newItem.name"/> <br/>
+	價格: <input type="text" v-model="newItem.price"> <br>
+	說明: <textarea v-model="newItem.content"></textarea><br>
+	<input type='button' @click="addItem()" value="保存">
 </div>
 <div v-if="UI=='editForm2'">
-	商品名稱: <input type="text"  v-model="newJob.name"/> <br/>
-
-	單價: <input type="text" v-model="newJob.price"> <br>
-
-	商品說明: <textarea v-model="newJob.content"></textarea><br>
-
-	<input type='button' @click="updateJob()" value="save">
+	名字: <input type="text" v-model="newItem.name"/> <br/>
+	價格: <input type="text" v-model="newItem.price"> <br>
+	說明: <textarea v-model="newItem.content"></textarea><br>
+	<input type='button' @click="updateItem()" value="保存">
 </div>
 </div>
 <script>
@@ -45,7 +39,7 @@ const todoApp= Vue.createApp({
 		return {
 			UI: 'main',
 			dat: [],
-			newJob: {
+			newItem: {
 				id: -1,
 				name: '',
 				price: '',
@@ -55,71 +49,67 @@ const todoApp= Vue.createApp({
 	},
 	methods: {
 		loadList: function () {
-			const that=this; //this  ==> stands for vm6. let's save `this` to `that`
-			fetch('merchantControl.php?act=listJob')
+			const that=this;
+			fetch('merchantControl.php?act=listItem')
 			.then(function(response) {
 				return response.json();
 			})
 			.then(function(myJson) {
-				//we are inside the callback function, now `this` means the function, not vm6
-				//we will use `that` to access vm6
-
 				that.dat = myJson;
-				//todoApp.dat = myJson;
+
 			});
 		},
-		delJob: function (id) {
+		delItem: function (id) {
 			const that=this;
-			let url="merchantControl.php?act=delJob&id="+id;
+			let url="merchantControl.php?act=delItem&id="+id;
 			fetch(url,{
 				method: 'POST'
 			})
-			.then(function(res){return res.text(); }) //取得傳回值，轉為文字
+			.then(function(res){return res.text(); })
 			.then(function(data){
 				console.log(data);
 				that.loadList();
 			})
 		},
-		addJob: function () {
+		addItem: function () {
 			const that=this;
 			let mydat = new FormData();
-			mydat.append( "dat", JSON.stringify(this.newJob) );
+			mydat.append( "dat", JSON.stringify(this.newItem) );
 
-			let url="merchantControl.php?act=addJob";
+			let url="merchantControl.php?act=addItem";
 			fetch(url,{
 				method: 'POST',
-				body: mydat // 將表單物件放入fetch的body屬性
+				body: mydat
 			})
-			.then(function(res){return res.text(); }) //取得傳回值，轉為文字
+			.then(function(res){return res.text(); })
 			.then(function(data){ 
 				console.log(data);
 				that.setUI('main');
 				that.loadList();
 			})
 		},
-		updateJob: function () { //修改
+		updateItem: function () {
 			const that=this;
 			let mydat = new FormData();
-			mydat.append( "dat", JSON.stringify(this.newJob) );
-
-			let url="merchantControl.php?act=updateJob&id="+this.newJob.id;
+			mydat.append( "dat", JSON.stringify(this.newItem) );
+			let url="merchantControl.php?act=updateItem&id="+this.newItem.id;
 			fetch(url,{
 				method: 'POST',
-				body: mydat // 將表單物件放入fetch的body屬性
+				body: mydat
 			})
-			.then(function(res){return res.text(); }) //取得傳回值，轉為文字
+			.then(function(res){return res.text(); })
 			.then(function(data){ 
 				console.log(data);
 				that.setUI('main');
 				that.loadList();
 			})
 		},
-		setEditUI: function(job) {
-			this.newJob=job;
+		setEditUI: function(item) {
+			this.newItem=item;
 			this.setUI('editForm2');
 		},
 		setAddUI: function() {
-			this.newJob={
+			this.newItem={
 				id: -1,
 				name: '',
 				price: '',
