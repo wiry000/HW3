@@ -1,0 +1,142 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script type="text/javascript" src="https://unpkg.com/vue@next"></script>
+</head>
+<body >
+<div id="main">
+<div id="list" v-if="UI=='main'">
+	<h1>商品的列表</h1>
+	<table border=1>
+		<tr><td>流水號</td><td>名字</td><td>價格</td><td>說明</td><td>-</td></tr>
+		<tr v-for="item in dat">
+			<td>{{item.id}}</td>
+			<td>{{item.name}}</td>
+			<td>{{item.price}}</td>
+			<td>{{item.content}}</td>
+			<td><button @click="setQanUI(item)">加到購物車</button></td>
+		</tr>
+		<button @click="setUI1('editForm')">檢查購物車</button>
+	</table>
+</div>
+<div v-if="UI=='editForm'">
+	<h1>購物車</h1>
+	<button @click="setUI('main')">返回商品清單</button>
+	<table border=1>
+	<tr><td>流水號</td><td>名字</td><td>價格</td><td>說明</td>
+		<td>數量</td><td>總價格</td>
+		<td>-</td>
+	</tr>
+	<tr v-for="item in dat">
+		<td>{{item.id}}</td>
+		<td>{{item.name}}</td>
+		<td>{{item.price}}</td>
+		<td>{{item.content}}</td>
+		<td>{{item.number}}</td>
+		<td>{{item.total}}</td>
+		<td><button @click="delItem(item.id)">刪除該商品</button></td>
+	</tr>
+</table>
+<div>
+	<strong>總價格: {{ calculateTotalPrice() }}</strong>
+</div>
+</div>
+<div v-if="UI=='editForm2'">
+	名字: {{newItem.name}} <br/>
+	價格: {{newItem.price}} <br>
+	說明: {{newItem.content}}<br>
+	數量: <input type="text" v-model="newItem.number"><br>
+	<input type='button' @click="addItem(item)" value="save">
+</div>
+</div>
+
+<script>
+const todoApp= Vue.createApp({
+	data() {
+		return {
+			UI: 'main',
+			dat: [],
+			newItem: {
+				id: -1,
+				name: '',
+				price: '',
+				content: '',
+				number: 0,
+				total: 0
+			}
+		}
+	},
+	methods: {
+		loadList: function () {
+			const that=this;
+			fetch('clientControl.php?act=listItem')
+			.then(function(response) {
+				return response.json();
+			})
+			.then(function(myJson) {
+				that.dat = myJson;
+			});
+		},
+		loadshoppingList: function () {
+			const that=this;
+			fetch('clientControl.php?act=listItem1')
+			.then(function(response) {
+				return response.json();
+			})
+			.then(function(myJson) {
+				that.dat = myJson;
+			});
+		},
+		delItem: function (id) {
+			const that=this;
+			let url="clientControl.php?act=delItem&id="+id;
+			fetch(url,{
+				method: 'POST'
+			})
+			.then(function(res){return res.text(); })
+			.then(function(data){
+				console.log(data);
+				that.setUI1('editForm');
+			})
+		},
+		addItem: function () {
+			const that=this;
+			let mydat = new FormData();
+			mydat.append( "dat", JSON.stringify(this.newItem) );
+			let url="clientControl.php?act=addItem";
+			fetch(url,{
+				method: 'POST',
+				body: mydat
+			})
+			.then(function(res){return res.text(); })
+			.then(function(data){ 
+				console.log(data);
+				that.setUI('main');
+			})
+		},
+		calculateTotalPrice: function () {
+        let totalPrice = 0;
+        for (const item of this.dat) {
+            totalPrice += item.total;
+        }
+        return totalPrice;
+    	},
+		setQanUI: function(item) {
+			this.newItem=item;
+			this.setUI('editForm2');
+		},
+		setUI: function(page) {
+			this.UI=page;
+			this.loadList();
+		},
+		setUI1: function(page) {
+			this.UI=page;
+			this.loadshoppingList();
+		}
+	},
+	created() {
+		this.loadList();
+	}
+}).mount("#main");
+</script>
+</body>
+</html>
