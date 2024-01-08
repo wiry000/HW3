@@ -1,0 +1,153 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script type="text/javascript" src="https://unpkg.com/vue@3.0.11"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js"></script>
+</head>
+
+<body >
+<hr />
+<div id="main">
+<div id="list" v-if="UI=='main'">
+	<h1>主頁</h1>
+	<hr/>
+	<input type='button' @click="logout()" value="logout"/>
+	
+</div>
+<div v-if="UI=='register'">
+    <button @click="setloginUI()">點擊以登入</button> <br/>
+	帳號 : <input type="text"  v-model="account" /> <br/>
+	密碼 : <input type="text" v-model="pwd" > <br>
+	該用戶為 : 
+	<select name="role" v-model="role" >
+	<option value="1" selected>顧客</option>
+	<option value="2">商家</option>
+	<option value="3">物流</option>
+	</select>
+	<br>
+
+	<input type='button' @click="addRole()" value="save">
+</div>
+<div v-if="UI=='loginForm'">
+	<button @click="setRegisterUI()">點擊以註冊</button> <br/>
+	帳號 : <input type="text"  v-model="account"/> <br/>
+	密碼 : <input type="password" v-model="pwd" /> <br/>
+	<input type='button' @click="login()" value="login"/> <br/>
+</div>
+	<hr/>
+	{{info}}
+	<input type='button' @click="loadInfo()" value="load Info"/> <br/>
+</div>
+<script>
+const role=function() {
+	let a=0;
+	function get() {
+	return a;
+	}
+}
+const todoApp= Vue.createApp({
+	data() {
+		return {
+			UI: '',
+			id: -1,
+			account: '',
+			role: 0,
+			pwd: '',
+			info: 'text'
+		}
+	},
+	methods: {
+		setUI2: function(page) {
+			this.UI=page;
+		},
+		setloginUI: function() {
+		    this.setUI2('loginForm');
+		},
+		setRegisterUI: function() {
+		    this.setUI2('register');
+		},
+		addRole: function() {
+		    const that=this;
+			
+			if (!this.account || !this.pwd || this.role==0) {
+                alert('有資料缺漏，麻煩填寫完整資料');
+                return;
+            }
+			
+			let mydat = new FormData();
+			mydat.append( "account", this.account);
+			// you may also use document.getElementById('loginID').value to get that field
+			mydat.append( "pwd", this.pwd);
+			mydat.append( "role", this.role);
+			mydat.append( "act", 'addRole');
+
+			let url="loginControl.php";
+			fetch(url,{
+				method: 'POST',
+				body: mydat // 將表單物件放入fetch的body屬性
+			})
+			.then(function(res){return res.text(); }) //取得傳回值，轉為文字
+			.then(function(data){
+				console.log(data);
+				that.setUI2('loginForm');
+			})
+		},
+		checkLogin: function() {
+			/*
+			const role=Cookies.get('loginRole');
+			sessionStorage.setItem('role', role)
+			console.log(role, this.login.myRole);
+			*/
+			const role=Cookies.get('loginRole');
+			if (role == 1) {
+				this.setUI2('main');
+			}
+			else {
+				this.setUI2('loginForm');
+			}
+		},
+		login: function() {
+			const that=this;
+			let mydat = new FormData();
+			mydat.append( "account", this.account);
+			// you may also use document.getElementById('loginID').value to get that field
+			mydat.append( "pwd", this.pwd);
+			mydat.append( "act", 'login');
+			let url="loginControl.php";
+			fetch(url,{
+				method: 'POST',
+				body: mydat // 將表單物件放入fetch的body屬性
+			})
+			.then(function(res){return res.json(); }) //取得傳回值，轉為文字
+			.then(function(data){
+				console.log(data);
+				//server 會設定 loginRole cookie, 呼叫檢查的函數
+				that.checkLogin();
+			})
+		},
+		loadInfo: function() {
+				const that=this;
+				let mydat = new FormData();
+				mydat.append( "act", 'showInfo');
+				let url="loginControl.php";
+				fetch(url,{
+					method: 'POST',
+					body: mydat
+				})
+				.then(function(res){return res.text(); }) //取得傳回值，轉為文字
+				.then(function(data){
+					that.info = data;
+				})
+		},
+		logout: function() {
+			Cookies.set('loginRole', 0, { path: '' }); //path: '' means the cookie is for the current path
+			this.checkLogin();
+		}
+		
+	},
+	created() {
+		this.checkLogin();
+	}
+}).mount("#main");
+
+</script>
+</body></html>
