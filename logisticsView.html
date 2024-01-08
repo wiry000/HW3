@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="text/javascript" src="https://unpkg.com/vue@3.2.21"></script>
+    <script type="text/javascript" src="logisticsScript.js"></script>
+</head>
+<body>
+    <div id="main">
+        <div id="customer-orders" v-if="UI === 'main'">
+            <h1>訂單</h1>
+            <table border=1>
+                <tr>
+                    <td>序號</td>
+                    <td>商品</td>
+                    <td>總額</td>
+                    <td>狀態</td>
+                    <td>客戶序號</td>
+                    <td>商家序號</td>
+                    <td>評價</td>
+                    <td>-</td>
+                </tr>
+                <tr v-for="order in customerOrders">
+                    <td>{{ order.id }}</td>
+                    <td>{{ order.commodity }}</td>
+                    <td>{{ order.total }}</td>
+                    <td>{{ order.status }}</td>
+                    <td>{{ order.userId }}</td>
+                    <td>{{ order.Mid }}</td>
+                    <td>{{order.evaluate}}</td>
+                    <td>
+                        <button @click="markDelivered(order.id)">
+                            更改為已送達
+                        </button>
+                        <button @click="markShipped(order.id)">
+                            更改為已寄送
+                        </button>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <script>
+        const logisticsApp = Vue.createApp({
+            data() {
+                return {
+                    customerOrders: [], // 用於存儲客戶訂單
+                    shopOrders: [], // 用於存儲商家訂單
+                    UI: 'main' // 設置初始 UI 狀態
+                };
+            },
+            methods: {
+                // 列出客戶訂單
+                loadCustomerOrders()
+                {
+                    fetch('logisticsControl.php?act=listOrder')
+                        .then(response => response.json())
+                        .then(data =>
+                        {
+                            this.customerOrders = data;
+                        });
+                },
+                // 標記訂單為已送達
+                markDelivered(orderId)
+                {
+                    fetch(`logisticsControl.php?act=markDelivered&id=${orderId}`)
+                        .then(response => response.text())
+                        .then(data =>
+                        {
+                            console.log(data);
+                            // 在此處刷新客戶訂單列表
+                            this.loadCustomerOrders();
+                        });
+                },
+                // 標記訂單為已寄送
+                markShipped(orderId)
+                {
+                    fetch(`logisticsControl.php?act=markShipped&id=${orderId}`)
+                        .then(response => response.text())
+                        .then(data =>
+                        {
+                            console.log(data);
+                            // 在此處刷新商家訂單列表
+                            this.loadCustomerOrders();
+                        });
+                },
+            },
+            mounted()
+            {
+                // 在應用程式創建時列出客戶訂單
+                this.loadCustomerOrders();
+            }
+        }).mount("#main");
+    </script>
+</body>
+</html>
